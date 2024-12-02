@@ -1,0 +1,31 @@
+name: CI/CD Pipeline
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      APP_NAME: your-app-name
+      VERSION: ${{ github.sha }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Build Docker image
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ env.APP_NAME }}:${{ env.VERSION }} .
+          docker tag ${{ env.APP_NAME }}:${{ env.VERSION }} ${{ env.APP_NAME }}:latest
+
+      # Run Docker Scout security scanning
+      - name: Docker Scout Scanning
+        run: |
+          # Generate vulnerability report
+          docker scout cves ${{ env.APP_NAME }}:${{ env.VERSION }} --output ./vulns.report
+          
+          # Check for critical vulnerabilities
+          docker scout cves ${{ env.APP_NAME }}:${{ env.VERSION }} --only-severity critical --exit-code
+          
+          # Generate SBOM
+          docker scout sbom --output ${{ env.APP_NAME }}.sbom ${{ env.APP_NAME }}:${{ env.VERSION }}
