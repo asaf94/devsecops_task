@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: Security Analysis
 
 on: [push, pull_request]
 
@@ -6,7 +6,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      APP_NAME: your-app-name
+      APP_NAME: my-app
       VERSION: ${{ github.sha }}
 
     steps:
